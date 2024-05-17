@@ -1,1 +1,1 @@
-web: gunicorn aolwebpage.wsgi
+web: gunicorn aolswebpage.wsgi
