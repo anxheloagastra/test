@@ -26,7 +26,35 @@ def apply_now(request):
         'term_of_services': term_of_services,
         'privacy_policy': privacy_policy})
 
+def send_applynow_email(request):
+    if request.method == 'POST':
+        form = ApplyNowForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
 
+            # Construct email message
+            email_subject = 'New Apply Form Web Page'
+            email_message = f"From: {name}\nEmail: {email}\n\n{message}"
+
+            try:
+                # Send email using Gmail SMTP
+                send_mail(
+                    subject=email_subject,
+                    message=email_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[settings.EMAIL_RECEIVER],
+                    fail_silently=False,
+                )
+                return render(request, 'contactussuccess.html')
+            except Exception as e:
+                # Handle exceptions during email sending
+                print(f"Error sending email: {str(e)}")
+                return render(request, 'index.html', {'form': form, 'error': str(e)})
+    else:
+        form = ContactForm()
+    return render(request, 'index..html', {'form': form})
 def apply_now_success(request):
     term_of_services = TermsOfService.objects.all()
     privacy_policy = PrivacyPolicy.objects.all()
